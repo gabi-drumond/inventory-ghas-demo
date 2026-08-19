@@ -1,4 +1,5 @@
-﻿using Inventory.App.Models;
+﻿using Inventory.App.Data;
+using Inventory.App.Models;
 using Inventory.App.Services;
 using Microsoft.Data.SqlClient;
 
@@ -30,3 +31,14 @@ Console.WriteLine(
     $"Movimento {movement.MovementType} preparado: {movement.Quantity}x {movement.Sku} " +
     $"em {movement.Warehouse} @ {movement.OccurredAtUtc:o}");
 Console.WriteLine($"(Destino: {connectionString})");
+
+// Consulta opcional por armazém informado via argumento de linha de comando.
+if (args.Length > 0)
+{
+    var warehouseFilter = args[0];
+    var repository = new MovementRepository(connectionString);
+    foreach (var existing in repository.FindByWarehouse(warehouseFilter))
+    {
+        Console.WriteLine($"  encontrado: {existing.Quantity}x {existing.Sku}");
+    }
+}
