@@ -1,6 +1,6 @@
 namespace Inventory.App.Models;
 
-/// <summary>Movimento de estoque gerado a partir de um pedido.</summary>
+/// <summary>Movimiento de stock generado a partir de un pedido.</summary>
 public sealed record StockMovement(
     string MovementType,
     string Sku,
