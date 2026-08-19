@@ -4,9 +4,9 @@ using Inventory.App.Services;
 using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
 
-// Demo genérica: importa um pedido e "grava" um movimento de estoque.
-// A conexão com SQL Server é apenas montada (não abrimos aqui) para manter
-// o app executável sem um banco real durante a apresentação.
+// Demo genérica: importa un pedido y "registra" un movimiento de stock.
+// La conexión con SQL Server solo se arma (no la abrimos aquí) para mantener
+// la app ejecutable sin una base real durante la presentación.
 
 // O pedido chega como JSON (ex.: fila/arquivo) e é desserializado.
 const string orderJson =
@@ -15,11 +15,11 @@ const string orderJson =
 var order = JsonConvert.DeserializeObject<Order>(orderJson)
     ?? new Order(OrderId: "ORD-1001", Warehouse: "WH-CENTRAL", Sku: "SKU-ABC-123", Quantity: 10);
 
-Console.WriteLine($"Importando pedido {order.OrderId} ({order.Quantity}x {order.Sku})...");
+Console.WriteLine($"Importando el pedido {order.OrderId} ({order.Quantity}x {order.Sku})...");
 
 if (!MovementCalculator.IsValid(order))
 {
-    Console.WriteLine("Pedido inválido. Encerrando.");
+    Console.WriteLine("Pedido inválido. Finalizando.");
     return;
 }
 
@@ -34,8 +34,8 @@ var connectionString = new SqlConnectionStringBuilder
 }.ConnectionString;
 
 Console.WriteLine(
-    $"Movimento {movement.MovementType} preparado: {movement.Quantity}x {movement.Sku} " +
-    $"em {movement.Warehouse} @ {movement.OccurredAtUtc:o}");
+    $"Movimiento {movement.MovementType} preparado: {movement.Quantity}x {movement.Sku} " +
+    $"en {movement.Warehouse} @ {movement.OccurredAtUtc:o}");
 Console.WriteLine($"(Destino: {connectionString})");
 
 // Consulta opcional por armazém informado via argumento de linha de comando.

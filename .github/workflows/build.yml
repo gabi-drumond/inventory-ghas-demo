@@ -8,31 +8,31 @@ on:
 
 jobs:
   build:
-    name: Build & Test
+    name: Compilación y pruebas
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Configurar .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      - name: Restore
+      - name: Restaurar
         run: dotnet restore Inventory.sln
 
-      - name: Build (Release)
+      - name: Compilar (Release)
         run: dotnet build Inventory.sln --configuration Release --no-restore
 
-      - name: Test
+      - name: Pruebas
         run: dotnet test Inventory.sln --configuration Release --no-build --verbosity normal
 
-      - name: Publish app
+      - name: Publicar la app
         run: dotnet publish src/Inventory.App/Inventory.App.csproj --configuration Release --no-build --output ./publish
 
-      - name: Upload build artifact
+      - name: Subir artefacto de compilación
         uses: actions/upload-artifact@v4
         with:
           name: inventory-app

@@ -2,12 +2,12 @@ using Inventory.App.Models;
 
 namespace Inventory.App.Services;
 
-/// <summary>Regras de negócio puras (sem I/O) — fáceis de testar.</summary>
+/// <summary>Reglas de negocio puras (sin I/O) — fáciles de probar.</summary>
 public static class MovementCalculator
 {
     public const string Inbound = "IN";
 
-    /// <summary>Um pedido é válido quando tem identificação e quantidade positiva.</summary>
+    /// <summary>Un pedido es válido cuando tiene identificación y cantidad positiva.</summary>
     public static bool IsValid(Order order) =>
         order is not null
         && !string.IsNullOrWhiteSpace(order.OrderId)
@@ -15,12 +15,12 @@ public static class MovementCalculator
         && !string.IsNullOrWhiteSpace(order.Sku)
         && order.Quantity > 0;
 
-    /// <summary>Converte um pedido em um movimento de entrada de estoque.</summary>
+    /// <summary>Convierte un pedido en un movimiento de entrada de stock.</summary>
     public static StockMovement FromOrder(Order order)
     {
         if (!IsValid(order))
         {
-            throw new ArgumentException("Pedido inválido.", nameof(order));
+            throw new ArgumentException("Pedido no válido.", nameof(order));
         }
 
         return new StockMovement(

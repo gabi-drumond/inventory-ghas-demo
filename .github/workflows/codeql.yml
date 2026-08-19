@@ -8,7 +8,7 @@ on:
 
 jobs:
   analyze:
-    name: CodeQL Analyze (csharp)
+    name: Análisis CodeQL (csharp)
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -19,25 +19,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Configurar .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      - name: Initialize CodeQL
+      - name: Inicializar CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: csharp
           build-mode: manual
           queries: security-extended
-          # Trata argumentos de CLI / variaveis de ambiente como entrada nao confiavel
+          # Trata los argumentos de CLI / variables de entorno como entrada no confiable
           config: |
             threat-models: local
 
-      - name: Build (Release)
+      - name: Compilar (Release)
         run: dotnet build Inventory.sln --configuration Release
 
-      - name: Perform CodeQL Analysis
+      - name: Ejecutar el análisis de CodeQL
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:csharp"
