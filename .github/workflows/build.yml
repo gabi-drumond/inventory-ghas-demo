@@ -1,0 +1,39 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore Inventory.sln
+
+      - name: Build (Release)
+        run: dotnet build Inventory.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test Inventory.sln --configuration Release --no-build --verbosity normal
+
+      - name: Publish app
+        run: dotnet publish src/Inventory.App/Inventory.App.csproj --configuration Release --no-build --output ./publish
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: inventory-app
+          path: ./publish

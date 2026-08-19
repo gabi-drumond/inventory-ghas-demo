@@ -1,0 +1,25 @@
+# .NET build outputs
+bin/
+obj/
+out/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+*.user
+*.suo
+
+# Test results
+[Tt]est[Rr]esults/
+*.trx
+*.coverage
+coverage/
+
+# Local secrets (nunca commitar)
+*.env
+appsettings.*.local.json
+secrets.json
+
+# NuGet
+*.nupkg
+.packages/
