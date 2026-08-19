@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 // La conexión con SQL Server solo se arma (no la abrimos aquí) para mantener
 // la app ejecutable sin una base real durante la presentación.
 
-// O pedido chega como JSON (ex.: fila/arquivo) e é desserializado.
+// El pedido llega como JSON (p. ej.: cola/archivo) y se deserializa.
 const string orderJson =
     """{"OrderId":"ORD-1001","Warehouse":"WH-CENTRAL","Sku":"SKU-ABC-123","Quantity":10}""";
 
@@ -38,7 +38,7 @@ Console.WriteLine(
     $"en {movement.Warehouse} @ {movement.OccurredAtUtc:o}");
 Console.WriteLine($"(Destino: {connectionString})");
 
-// Consulta opcional por armazém informado via argumento de linha de comando.
+// Consulta opcional por almacén indicado vía argumento de línea de comandos.
 if (args.Length > 0)
 {
     var warehouseFilter = args[0];

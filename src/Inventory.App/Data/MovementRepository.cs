@@ -3,14 +3,14 @@ using Microsoft.Data.SqlClient;
 
 namespace Inventory.App.Data;
 
-/// <summary>Acesso a dados dos movimentos de estoque.</summary>
+/// <summary>Acceso a datos de los movimientos de stock.</summary>
 public sealed class MovementRepository
 {
     private readonly string _connectionString;
 
     public MovementRepository(string connectionString) => _connectionString = connectionString;
 
-    /// <summary>Busca movimentos de um armazém informado pelo usuário.</summary>
+    /// <summary>Busca movimientos de un almacén indicado por el usuario.</summary>
     public IEnumerable<StockMovement> FindByWarehouse(string warehouse)
     {
         using var connection = new SqlConnection(_connectionString);
