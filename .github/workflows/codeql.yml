@@ -29,6 +29,10 @@ jobs:
         with:
           languages: csharp
           build-mode: manual
+          queries: security-extended
+          # Trata argumentos de CLI / variaveis de ambiente como entrada nao confiavel
+          config: |
+            threat-models: local
 
       - name: Build (Release)
         run: dotnet build Inventory.sln --configuration Release
