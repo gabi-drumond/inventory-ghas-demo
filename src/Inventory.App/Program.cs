@@ -2,12 +2,18 @@
 using Inventory.App.Models;
 using Inventory.App.Services;
 using Microsoft.Data.SqlClient;
+using Newtonsoft.Json;
 
 // Demo genérica: importa um pedido e "grava" um movimento de estoque.
 // A conexão com SQL Server é apenas montada (não abrimos aqui) para manter
 // o app executável sem um banco real durante a apresentação.
 
-var order = new Order(OrderId: "ORD-1001", Warehouse: "WH-CENTRAL", Sku: "SKU-ABC-123", Quantity: 10);
+// O pedido chega como JSON (ex.: fila/arquivo) e é desserializado.
+const string orderJson =
+    """{"OrderId":"ORD-1001","Warehouse":"WH-CENTRAL","Sku":"SKU-ABC-123","Quantity":10}""";
+
+var order = JsonConvert.DeserializeObject<Order>(orderJson)
+    ?? new Order(OrderId: "ORD-1001", Warehouse: "WH-CENTRAL", Sku: "SKU-ABC-123", Quantity: 10);
 
 Console.WriteLine($"Importando pedido {order.OrderId} ({order.Quantity}x {order.Sku})...");
 
