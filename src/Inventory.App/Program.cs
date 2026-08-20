@@ -39,9 +39,10 @@ Console.WriteLine(
 Console.WriteLine($"(Destino: {connectionString})");
 
 // Consulta opcional por almacén indicado vía argumento de línea de comandos.
-if (args.Length > 0)
+var cliArgs = Environment.GetCommandLineArgs(); // [0] = ruta del ejecutable
+if (cliArgs.Length > 1)
 {
-    var warehouseFilter = args[0];
+    var warehouseFilter = cliArgs[1];
     var repository = new MovementRepository(connectionString);
     foreach (var existing in repository.FindByWarehouse(warehouseFilter))
     {
