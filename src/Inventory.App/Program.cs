@@ -38,11 +38,10 @@ Console.WriteLine(
     $"en {movement.Warehouse} @ {movement.OccurredAtUtc:o}");
 Console.WriteLine($"(Destino: {connectionString})");
 
-// Consulta opcional por almacén indicado vía argumento de línea de comandos.
-var cliArgs = Environment.GetCommandLineArgs(); // [0] = ruta del ejecutable
-if (cliArgs.Length > 1)
+// Consulta opcional por almacén indicado vía variable de entorno.
+var warehouseFilter = Environment.GetEnvironmentVariable("WAREHOUSE");
+if (!string.IsNullOrEmpty(warehouseFilter))
 {
-    var warehouseFilter = cliArgs[1];
     var repository = new MovementRepository(connectionString);
     foreach (var existing in repository.FindByWarehouse(warehouseFilter))
     {
