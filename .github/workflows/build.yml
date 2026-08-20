@@ -1,37 +1,49 @@
+# CI (Integración Continua): compila y prueba el código en cada cambio.
+# Es la primera red de seguridad: si algo no compila o un test falla, se ve aquí.
 name: build
 
+# "on" define QUÉ eventos disparan el workflow.
 on:
   push:
-    branches: [main]
+    branches: [main]        # cada push a main
   pull_request:
-    branches: [main]
+    branches: [main]        # y cada PR que apunta a main (valida antes de mezclar)
 
+# Un workflow tiene uno o más "jobs". Cada job corre en su propia máquina limpia.
 jobs:
   build:
     name: Compilación y pruebas
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest   # máquina virtual efímera provista por GitHub
 
+    # Los "steps" corren en orden, de arriba a abajo, en la misma máquina.
     steps:
+      # Descarga tu código al runner. Casi todo workflow empieza así.
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Instala el SDK de .NET para poder usar el comando `dotnet`.
       - name: Configurar .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
+      # Descarga los paquetes NuGet declarados en el proyecto.
       - name: Restaurar
         run: dotnet restore Inventory.sln
 
+      # Compila en modo Release. --no-restore evita repetir el paso anterior.
       - name: Compilar (Release)
         run: dotnet build Inventory.sln --configuration Release --no-restore
 
+      # Ejecuta las pruebas unitarias (xUnit). Si una falla, el job falla y frena el merge.
       - name: Pruebas
         run: dotnet test Inventory.sln --configuration Release --no-build --verbosity normal
 
+      # Genera la salida publicable de la app en ./publish (sin recompilar).
       - name: Publicar la app
         run: dotnet publish src/Inventory.App/Inventory.App.csproj --configuration Release --no-build --output ./publish
 
+      # Guarda esa salida como "artefacto" descargable desde la ejecución del workflow.
       - name: Subir artefacto de compilación
         uses: actions/upload-artifact@v4
         with:

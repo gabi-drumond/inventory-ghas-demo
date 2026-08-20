@@ -1,19 +1,23 @@
+# GHAS — SAST (Static Application Security Testing).
+# CodeQL analiza el CÓDIGO FUENTE en busca de vulnerabilidades (ej. inyección SQL)
+# y publica los hallazgos en la pestaña Security → Code scanning.
 name: codeql
 
 on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    branches: [main]         # también escanea cada PR antes de mezclar
 
 jobs:
   analyze:
     name: Análisis CodeQL (csharp)
     runs-on: ubuntu-latest
+    # Permisos mínimos que el job necesita para publicar alertas de seguridad.
     permissions:
       actions: read
       contents: read
-      security-events: write
+      security-events: write  # imprescindible: permite escribir los hallazgos en Security
 
     steps:
       - name: Checkout
@@ -24,19 +28,25 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      # Prepara el motor de CodeQL antes de compilar.
       - name: Inicializar CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: csharp
+          # build-mode manual: nosotros compilamos (paso siguiente) y CodeQL observa la build.
           build-mode: manual
+          # security-extended: conjunto ampliado de consultas de seguridad.
           queries: security-extended
-          # Trata los argumentos de CLI / variables de entorno como entrada no confiable
+          # threat-models local: trata args de CLI / variables de entorno como entrada NO confiable,
+          # ampliando qué se considera "fuente" de datos peligrosos en el análisis.
           config: |
             threat-models: local
 
+      # CodeQL necesita una compilación real para construir su base de datos de código.
       - name: Compilar (Release)
         run: dotnet build Inventory.sln --configuration Release
 
+      # Ejecuta las consultas y sube los resultados a Security → Code scanning.
       - name: Ejecutar el análisis de CodeQL
         uses: github/codeql-action/analyze@v3
         with:

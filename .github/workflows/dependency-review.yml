@@ -1,11 +1,16 @@
+# GHAS — SCA (Software Composition Analysis).
+# Revisa las DEPENDENCIAS que agrega/cambia un PR y bloquea si introducen
+# una vulnerabilidad conocida (CVE/GHSA). Complementa a CodeQL: CodeQL mira TU código,
+# este mira el código de TERCEROS que traes vía NuGet.
 name: dependency-review
 
+# Solo tiene sentido en PRs: compara las dependencias del PR contra la base (main).
 on:
   pull_request:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: read            # solo necesita leer el repositorio
 
 jobs:
   dependency-review:
@@ -18,4 +23,5 @@ jobs:
       - name: Revisión de dependencias
         uses: actions/dependency-review-action@v4
         with:
+          # Falla el check si el PR introduce una vulnerabilidad de severidad "high" o mayor.
           fail-on-severity: high
