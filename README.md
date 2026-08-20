@@ -4,8 +4,6 @@ Aplicación de ejemplo (**consola .NET 8**) que simula importar un pedido y regi
 movimiento de stock en SQL Server. El objetivo es **demostrar** GitHub Actions (CI),
 CodeQL, Dependency Review y funcionalidades de GitHub Advanced Security (GHAS).
 
-> Dominio 100% genérico (gestión de stock / almacén). Sin clientes, marcas ni sistemas reales.
-
 ## Estructura
 
 ```
