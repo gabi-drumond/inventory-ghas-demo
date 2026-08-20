@@ -21,7 +21,9 @@ public sealed class MovementRepository
         var sql = "SELECT MovementType, Sku, Warehouse, Quantity, OccurredAtUtc "
                 + "FROM Movements WHERE Warehouse = '" + warehouse + "'";
 
-        using var command = new SqlCommand(sql, connection);
+        using var command = new SqlCommand();
+        command.Connection = connection;
+        command.CommandText = sql; // entrada del usuario concatenada -> inyección SQL
         connection.Open();
 
         using var reader = command.ExecuteReader();
