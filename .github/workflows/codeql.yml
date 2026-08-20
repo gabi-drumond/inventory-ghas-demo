@@ -1,6 +1,17 @@
-# GHAS — SAST (Static Application Security Testing).
-# CodeQL analiza el CÓDIGO FUENTE en busca de vulnerabilidades (ej. inyección SQL)
-# y publica los hallazgos en la pestaña Security → Code scanning.
+# ============================================================================
+# WORKFLOW: codeql  (GHAS — SAST: Static Application Security Testing)
+# ============================================================================
+# ¿Qué hace? Analiza TU CÓDIGO FUENTE en busca de vulnerabilidades (p. ej. una
+# inyección SQL) y publica los hallazgos en la pestaña Security → Code scanning.
+#
+# Cómo razona CodeQL (idea clave): sigue el "camino" del dato desde una FUENTE
+# (source) — una entrada no confiable, como una variable de entorno — hasta un
+# SUMIDERO (sink) peligroso — como concatenar texto dentro de una consulta SQL.
+# Si existe ese camino sin sanear, levanta una alerta.
+#
+# Diferencia con dependency-review.yml: CodeQL mira el código que TU escribes;
+# Dependency Review mira el código de TERCEROS (las dependencias NuGet).
+# ============================================================================
 name: codeql
 
 on:
@@ -10,10 +21,14 @@ on:
     branches: [main]         # también escanea cada PR antes de mezclar
 
 jobs:
+  # -------------------------------------------------------------------------
+  # JOB único — analyze: inicializa CodeQL, compila y ejecuta el análisis.
+  # -------------------------------------------------------------------------
   analyze:
     name: Análisis CodeQL (csharp)
     runs-on: ubuntu-latest
-    # Permisos mínimos que el job necesita para publicar alertas de seguridad.
+    # 'permissions' da al job SOLO los permisos que necesita (principio de mínimo
+    # privilegio). Sin 'security-events: write' no podría publicar las alertas.
     permissions:
       actions: read
       contents: read

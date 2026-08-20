@@ -1,5 +1,19 @@
-# CI (Integración Continua): compila y prueba el código en cada cambio.
-# Es la primera red de seguridad: si algo no compila o un test falla, se ve aquí.
+# ============================================================================
+# WORKFLOW: build  (CI — Integración Continua)
+# ============================================================================
+# ¿Qué hace? En CADA cambio, compila y prueba el código. Es la primera red de
+# seguridad del pipeline: si algo no compila o un test falla, se ve aquí antes
+# de que el código se mezcle a main.
+#
+# Conceptos base de GitHub Actions que aparecen abajo:
+#   - workflow : este archivo .yml completo (una "tubería" de automatización).
+#   - trigger  : el evento que lo lanza (sección 'on').
+#   - job      : una tarea que corre en su PROPIA máquina limpia.
+#   - runner   : esa máquina virtual efímera que GitHub crea y destruye.
+#   - step     : cada paso dentro del job; corren en orden, de arriba a abajo.
+#   - action   : bloque reutilizable del Marketplace que se invoca con 'uses:'
+#                (vs 'run:', que ejecuta un comando de shell que escribimos).
+# ============================================================================
 name: build
 
 # "on" define QUÉ eventos disparan el workflow.
@@ -7,17 +21,21 @@ on:
   push:
     branches: [main]        # cada push a main
   pull_request:
-    branches: [main]        # y cada PR que apunta a main (valida antes de mezclar)
+    branches: [main]        # y cada PR que apunta a main (valida ANTES de mezclar)
 
 # Un workflow tiene uno o más "jobs". Cada job corre en su propia máquina limpia.
 jobs:
+  # -------------------------------------------------------------------------
+  # JOB único — build: compila, prueba y publica el resultado.
+  # -------------------------------------------------------------------------
   build:
     name: Compilación y pruebas
     runs-on: ubuntu-latest   # máquina virtual efímera provista por GitHub
 
     # Los "steps" corren en orden, de arriba a abajo, en la misma máquina.
     steps:
-      # Descarga tu código al runner. Casi todo workflow empieza así.
+      # Descarga tu código al runner. La máquina llega vacía, así que casi todo
+      # workflow empieza con este checkout para tener los archivos disponibles.
       - name: Checkout
         uses: actions/checkout@v4
 

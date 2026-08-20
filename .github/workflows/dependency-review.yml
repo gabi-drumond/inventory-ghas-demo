@@ -1,10 +1,19 @@
-# GHAS — SCA (Software Composition Analysis).
-# Revisa las DEPENDENCIAS que agrega/cambia un PR y bloquea si introducen
-# una vulnerabilidad conocida (CVE/GHSA). Complementa a CodeQL: CodeQL mira TU código,
-# este mira el código de TERCEROS que traes vía NuGet.
+# ============================================================================
+# WORKFLOW: dependency-review  (GHAS — SCA: Software Composition Analysis)
+# ============================================================================
+# ¿Qué hace? Revisa las DEPENDENCIAS que un PR agrega o cambia y BLOQUEA el PR
+# si introducen una vulnerabilidad conocida (identificada por un CVE/GHSA).
+#
+# Complementa a CodeQL:
+#   - CodeQL (SAST)            -> busca fallos en el código que TU escribes.
+#   - Dependency Review (SCA)  -> busca fallos en el código de TERCEROS que
+#                                 traes vía NuGet (paquetes de la comunidad).
+#
+# Por qué SOLO en pull_request: compara la lista de dependencias del PR contra
+# la de la rama base (main). Fuera de un PR no hay "antes vs después" que comparar.
+# ============================================================================
 name: dependency-review
 
-# Solo tiene sentido en PRs: compara las dependencias del PR contra la base (main).
 on:
   pull_request:
     branches: [main]
@@ -13,15 +22,20 @@ permissions:
   contents: read            # solo necesita leer el repositorio
 
 jobs:
+  # -------------------------------------------------------------------------
+  # JOB único — dependency-review: compara dependencias y falla si hay riesgo.
+  # -------------------------------------------------------------------------
   dependency-review:
     name: Revisión de dependencias
     runs-on: ubuntu-latest
     steps:
+      # Descarga el código del repo en el runner (necesario para leer los manifiestos).
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Revisión de dependencias
         uses: actions/dependency-review-action@v4
         with:
-          # Falla el check si el PR introduce una vulnerabilidad de severidad "high" o mayor.
+          # Falla el check si el PR introduce una vulnerabilidad de severidad "high"
+          # o mayor. Ese "fallo" es lo que bloquea la mezcla del PR.
           fail-on-severity: high
