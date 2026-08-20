@@ -13,6 +13,8 @@ public sealed class MovementRepository
     /// <summary>Busca movimientos de un almacén indicado por el usuario.</summary>
     public IEnumerable<StockMovement> FindByWarehouse(string warehouse)
     {
+        var results = new List<StockMovement>();
+
         using var connection = new SqlConnection(_connectionString);
 
         // TODO: parametrizar
@@ -25,12 +27,14 @@ public sealed class MovementRepository
         using var reader = command.ExecuteReader();
         while (reader.Read())
         {
-            yield return new StockMovement(
+            results.Add(new StockMovement(
                 MovementType: reader.GetString(0),
                 Sku: reader.GetString(1),
                 Warehouse: reader.GetString(2),
                 Quantity: reader.GetInt32(3),
-                OccurredAtUtc: reader.GetDateTime(4));
+                OccurredAtUtc: reader.GetDateTime(4)));
         }
+
+        return results;
     }
 }
