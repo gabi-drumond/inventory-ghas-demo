@@ -1,0 +1,117 @@
+# Empaqueta un artefacto de RELEASE repetible a partir del código.
+# A diferencia de build.yml (CI en cada push/PR), este workflow produce el
+# "paquete distribuible" versionado que se promueve entre ambientes.
+name: release
+
+on:
+  # Disparo por etiqueta: al hacer push de una tag como v1.0.0 se genera el release.
+  push:
+    tags: ["v*"]
+  # Disparo manual desde la pestaña Actions (botón "Run workflow").
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versión a empaquetar (p. ej. v1.0.0). Solo se usa en ejecución manual."
+        required: false
+        default: v0.0.0-manual
+
+jobs:
+  package:
+    name: Empaquetar release
+    runs-on: ubuntu-latest
+    # Expone la versión calculada para que los jobs de deploy la reutilicen.
+    outputs:
+      version: ${{ steps.version.outputs.value }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      # La versión viene de la etiqueta (push de tag) o del input (ejecución manual).
+      - name: Determinar la versión
+        id: version
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "value=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Restaurar
+        run: dotnet restore Inventory.sln
+
+      # Publicación "framework-dependent": no incluye el runtime .NET, requiere
+      # que la máquina destino ya lo tenga instalado. Representa el paquete distribuible.
+      - name: Publicar la app (Release)
+        run: >
+          dotnet publish src/Inventory.App/Inventory.App.csproj
+          --configuration Release
+          --output ./publish
+
+      # NOTA (escenario real ClickOnce / on-premise):
+      # Aquí, en un caso real de app desktop distribuida por ClickOnce, se generaría
+      # el manifiesto de despliegue con `mage`/`mage.exe` o vía `msbuild /t:Publish`
+      # (que requiere un runner Windows). Además, para publicar dentro de la red
+      # corporativa (on-premise, sin acceso desde internet), este job correría en un
+      # SELF-HOSTED RUNNER instalado en esa red — así el paquete llega a un recurso
+      # interno (recurso compartido, servidor de publicación) sin exponerlo hacia afuera.
+      # Para la demo dejamos publish + zip como representación del "paquete distribuible".
+      - name: Comprimir el paquete (.zip)
+        run: |
+          mkdir -p artifacts
+          cd publish
+          zip -r "../artifacts/inventory-app-${{ steps.version.outputs.value }}.zip" .
+
+      - name: Subir el paquete de release
+        uses: actions/upload-artifact@v4
+        with:
+          name: inventory-app-${{ steps.version.outputs.value }}
+          path: artifacts/*.zip
+
+  # Despliegue a QA: depende de que el paquete exista. Solo SIMULA el despliegue.
+  deploy-qa:
+    name: Desplegar en QA
+    needs: package
+    runs-on: ubuntu-latest
+    environment: qa
+    steps:
+      - name: Descargar el paquete de release
+        uses: actions/download-artifact@v4
+        with:
+          pattern: inventory-app-*
+          merge-multiple: true
+          path: artifacts
+
+      - name: Simular el despliegue en QA
+        run: |
+          echo "Desplegando versión ${{ needs.package.outputs.version }} en QA"
+          ls -la artifacts
+
+  # Promoción a Producción: solo corre DESPUÉS de QA (needs: deploy-qa).
+  # IMPORTANTE: el ambiente `production` debe tener "Required reviewers" configurado
+  # en la UI del GitHub (Settings → Environments → production). Con eso, este job
+  # queda EN ESPERA hasta que una persona apruebe la promoción — ese es el gate
+  # manual entre QA y Producción. Se conecta con GHAS: la seguridad (CodeQL,
+  # Dependency Review, Secret Scanning) debe pasar ANTES de aprobar el paso a prod.
+  deploy-prod:
+    name: Desplegar en Producción
+    needs: deploy-qa
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Descargar el paquete de release
+        uses: actions/download-artifact@v4
+        with:
+          pattern: inventory-app-*
+          merge-multiple: true
+          path: artifacts
+
+      - name: Simular el despliegue en Producción
+        run: |
+          echo "Desplegando versión ${{ needs.package.outputs.version }} en Producción"
+          ls -la artifacts
