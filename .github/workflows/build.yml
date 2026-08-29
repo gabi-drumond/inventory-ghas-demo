@@ -37,7 +37,7 @@ jobs:
       # Descarga tu código al runner. La máquina llega vacía, así que casi todo
       # workflow empieza con este checkout para tener los archivos disponibles.
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Instala el SDK de .NET para poder usar el comando `dotnet`.
       - name: Configurar .NET
