@@ -31,7 +31,7 @@ jobs:
     steps:
       # Descarga el código del repo en el runner (necesario para leer los manifiestos).
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Revisión de dependencias
         uses: actions/dependency-review-action@v4
